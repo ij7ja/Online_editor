@@ -58,13 +58,13 @@ function isPasswordValid(password, user) {
 async function createSession(userId) {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  
+
   await Session.create({
     token,
     userId,
     expiresAt
   });
-  
+
   return token;
 }
 
@@ -121,7 +121,6 @@ app.post("/api/register", async (req, res) => {
 
     res.status(201).json({
       message: "Account created.",
-      token,
       user: { id: newUser._id, username: newUser.username },
     });
   } catch (error) {
@@ -134,7 +133,7 @@ app.post("/api/login", async (req, res) => {
     const { username: rawUsername, password } = req.body;
     const username = normalizeUsername(rawUsername);
     const pass = String(password || "");
-    
+
     const user = await User.findOne({ username });
 
     if (!user || !isPasswordValid(pass, user)) {
@@ -156,25 +155,25 @@ app.post("/api/login", async (req, res) => {
 app.get("/api/me", async (req, res) => {
   try {
     const token = getBearerToken(req);
-    
+
     if (!token) {
       return res.status(401).json({ message: "Not logged in." });
     }
 
-    const session = await Session.findOne({ 
-      token, 
-      expiresAt: { $gt: new Date() } 
+    const session = await Session.findOne({
+      token,
+      expiresAt: { $gt: new Date() }
     }).populate('userId', 'username');
 
     if (!session || !session.userId) {
       return res.status(401).json({ message: "Not logged in." });
     }
 
-    res.status(200).json({ 
-      user: { 
-        id: session.userId._id, 
-        username: session.userId.username 
-      } 
+    res.status(200).json({
+      user: {
+        id: session.userId._id,
+        username: session.userId.username
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message || "Something went wrong." });

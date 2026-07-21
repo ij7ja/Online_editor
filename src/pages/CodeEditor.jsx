@@ -45,22 +45,22 @@ export default function CodeEditor() {
   };
 
   const toggleFullscreen = async () => {
-  try {
-    if (!document.fullscreenElement) {
-      await outputRef.current.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
+    try {
+      if (!document.fullscreenElement) {
+        await outputRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
   const editorTheme = theme === "dark" ? "vs-dark" : "light";
 
   const srcDoc = html
-  .replace("</head>", `<style>${css}</style></head>`)
-  .replace("</body>", `<script>${js}</script></body>`);
+    .replace("</head>", `<style>${css}</style></head>`)
+    .replace("</body>", `<script>${js}</script></body>`);
 
   const renderEditor = () => {
     switch (activeTab) {
@@ -147,24 +147,24 @@ export default function CodeEditor() {
         </div>
 
         <div className="output-pane" ref={outputRef}>
-  <div className="output-header">
-    <h2>Output</h2>
+          <div className="output-header">
+            <h2>Output</h2>
 
-    <button
-      className="fullscreen-btn"
-      onClick={toggleFullscreen}
-    >
-      ⛶ Full Screen
-    </button>
-  </div>
+            <button
+              className="fullscreen-btn"
+              onClick={toggleFullscreen}
+            >
+              ⛶ Full Screen
+            </button>
+          </div>
 
-  <iframe
-    srcDoc={srcDoc}
-    title="output"
-    sandbox="allow-scripts"
-    className="output-frame"
-  />
-</div>
+          <iframe
+            srcDoc={srcDoc}
+            title="output"
+            sandbox="allow-scripts"
+            className="output-frame"
+          />
+        </div>
       </div>
     </div>
   );
