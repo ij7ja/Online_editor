@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom'
 import Home from "./pages/Home";
-import LoginForm from "./pages/LoginForm";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import Editor from "./pages/CodeEditor";
 import { getAuthToken } from "./auth";
 import './App.css';
@@ -15,7 +16,8 @@ function App() {
     <Router>
       <Routes>        
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginForm />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route
           path="/editor"
           element={
