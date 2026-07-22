@@ -9,18 +9,18 @@ export default function CodeEditor() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("html");
   const [html, setHtml] = useState(`<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Document</title>
-    </head>
-    <body>
-      <h1>Online code editor</h1>
-    </body>
-    </html>`);
-  const [css, setCss] = useState(`h1{
-  color: green;
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Online code editor</h1>
+  </body>
+</html>`);
+  const [css, setCss] = useState(`body{
+  background-color: #ddd;
 }
   
 `);
