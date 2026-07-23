@@ -34,7 +34,7 @@ const SignUp = () => {
         throw new Error(data.message || "Registration failed.");
       }
 
-      saveAuth({ remember, token: data.token, user: data.user });
+      saveAuth({ remember, token: data.token, user: { ...data.user, password } });
       navigate("/editor", { replace: true });
     } catch (error) {
       setMessage(error.message);

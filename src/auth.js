@@ -9,6 +9,16 @@ export function getAuthToken() {
   return token;
 }
 
+export function getAuthUser() {
+  const userStr = localStorage.getItem(userKey) || sessionStorage.getItem(userKey);
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
+  } catch (e) {
+    return null;
+  }
+}
+
 export function saveAuth({ remember, token, user }) {
   const selectedStorage = remember ? localStorage : sessionStorage;
   const otherStorage = remember ? sessionStorage : localStorage;

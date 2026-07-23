@@ -35,6 +35,17 @@ const sessionSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const Session = mongoose.model("Session", sessionSchema);
 
+const codeSpaceSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  title: { type: String, required: true },
+  html: { type: String, default: "" },
+  css: { type: String, default: "" },
+  js: { type: String, default: "" },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+const CodeSpace = mongoose.model("CodeSpace", codeSpaceSchema);
+
 function normalizeUsername(username) {
   return String(username || "").trim().toLowerCase();
 }
@@ -191,6 +202,87 @@ app.post("/api/logout", async (req, res) => {
     res.status(200).json({ message: "Logged out." });
   } catch (error) {
     res.status(500).json({ message: error.message || "Something went wrong." });
+  }
+});
+
+// --- Authentication Middleware ---
+async function authenticate(req, res, next) {
+  try {
+    const token = getBearerToken(req);
+    if (!token) return res.status(401).json({ message: "Not logged in." });
+
+    const session = await Session.findOne({
+      token,
+      expiresAt: { $gt: new Date() }
+    }).populate('userId', 'username');
+
+    if (!session || !session.userId) {
+      return res.status(401).json({ message: "Not logged in." });
+    }
+
+    req.user = session.userId;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Auth error." });
+  }
+}
+
+// --- Code Spaces Routes ---
+app.get("/api/codespaces", authenticate, async (req, res) => {
+  try {
+    const spaces = await CodeSpace.find({ userId: req.user._id }).sort({ updatedAt: -1 });
+    res.status(200).json(spaces);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post("/api/codespaces", authenticate, async (req, res) => {
+  try {
+    const { title, html, css, js } = req.body;
+    const newSpace = await CodeSpace.create({
+      userId: req.user._id,
+      title: title || `Project - ${new Date().toLocaleDateString()}`,
+      html: html || "",
+      css: css || "",
+      js: js || "",
+      updatedAt: new Date()
+    });
+    res.status(201).json(newSpace);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put("/api/codespaces/:id", authenticate, async (req, res) => {
+  try {
+    const { html, css, js, title } = req.body;
+    const updateData = { updatedAt: new Date() };
+    if (html !== undefined) updateData.html = html;
+    if (css !== undefined) updateData.css = css;
+    if (js !== undefined) updateData.js = js;
+    if (title !== undefined) updateData.title = title;
+
+    const updatedSpace = await CodeSpace.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      updateData,
+      { new: true }
+    );
+    
+    if (!updatedSpace) return res.status(404).json({ message: "Not found" });
+    res.status(200).json(updatedSpace);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete("/api/codespaces/:id", authenticate, async (req, res) => {
+  try {
+    const deleted = await CodeSpace.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
+    if (!deleted) return res.status(404).json({ message: "Not found" });
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
