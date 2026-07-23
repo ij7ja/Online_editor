@@ -11,7 +11,7 @@ const Home = () => {
           <span className="highlight">&lt;/&gt;</span> CodeMaster
         </div>
         <div className="nav-links">
-          <a href="#">Features</a>
+          <a href="#features" onClick={(e) => { e.preventDefault(); document.getElementById('features').scrollIntoView({ behavior: 'smooth' }); }}>Features</a>
           <a href="#">About</a>
           <button className="nav-button" onClick={() => navigate("/login")}>Login</button>
         </div>
@@ -56,6 +56,27 @@ const Home = () => {
           </div>
         </div>
       </main>
+
+      <section id="features" className="features-section fade-in-up delay-1">
+        <h2 className="features-title">Why Choose <span className="highlight">CodeMaster</span>?</h2>
+        <div className="features-grid">
+          <div className="feature-card glass-panel">
+            <div className="feature-icon">⚡</div>
+            <h3>Lightning Fast</h3>
+            <p>Experience instant feedback with our optimized real-time rendering engine. No more waiting for builds.</p>
+          </div>
+          <div className="feature-card glass-panel">
+            <div className="feature-icon">🎨</div>
+            <h3>Beautiful Themes</h3>
+            <p>Choose from carefully crafted dark and light themes that are easy on the eyes for those long coding sessions.</p>
+          </div>
+          <div className="feature-card glass-panel">
+            <div className="feature-icon">🚀</div>
+            <h3>Zero Setup</h3>
+            <p>Start coding immediately in your browser. No installation or configuration required. Just pure development.</p>
+          </div>
+        </div>
+      </section>
 
       <footer className="home-footer fade-in">
         <div className="footer-content">

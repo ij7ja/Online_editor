@@ -2,7 +2,11 @@ const tokenKey = "codeEditorAuthToken";
 const userKey = "codeEditorAuthUser";
 
 export function getAuthToken() {
-  return localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey);
+  const token = localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey);
+  if (!token || token === "null" || token === "undefined") {
+    return null;
+  }
+  return token;
 }
 
 export function saveAuth({ remember, token, user }) {

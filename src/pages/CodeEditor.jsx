@@ -16,11 +16,12 @@ export default function CodeEditor() {
     <title>Document</title>
   </head>
   <body>
-    <h1>Online code editor</h1>
+    <h1>CodeMaster</h1>
   </body>
 </html>`);
   const [css, setCss] = useState(`body{
   background-color: #ddd;
+  font-family: tahoma;
 }
   
 `);
@@ -105,7 +106,7 @@ export default function CodeEditor() {
   return (
     <div className="container">
       <nav className="header">
-        <h1>Online Code Editor</h1>
+        <h1>CodeMaster</h1>
 
         <div className="header-actions">
           <button className="theme-toggle" onClick={toggleTheme}>
