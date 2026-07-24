@@ -385,30 +385,29 @@ export default function CodeEditor() {
           {isSaving && <span style={{ fontSize: "14px", color: "var(--accent-color)", fontWeight: "600" }}>Saving...</span>}
           <button className="theme-toggle" onClick={() => setShowSpacesModal(true)} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Create
+            <span className="btn-text">Create</span>
           </button>
 
-          <button className="theme-toggle" onClick={toggleTheme} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <button className="theme-toggle" onClick={toggleTheme} style={{ display: "flex", alignItems: "center", gap: "6px" }} title="Toggle Theme">
             {theme === "dark" ? (
               <>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                
               </>
             ) : (
               <>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                
               </>
             )}
           </button>
 
           <button className="theme-toggle" onClick={() => setShowProfileModal(true)} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Profile
+            <span className="btn-text">Profile</span>
           </button>
 
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
+          <button className="logout-button" onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span className="btn-text">Logout</span>
           </button>
         </div>
       </nav>
@@ -488,15 +487,17 @@ export default function CodeEditor() {
                 style={{ backgroundColor: "var(--accent-color)", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> 
-                Download 
+                <span className="btn-text">Download</span>
               </button>
               
               <button
                 className="fullscreen-btn"
                 onClick={toggleFullscreen}
                 title="Shortcut: Alt+F"
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
               >
-                ⛶ Full Screen 
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                <span className="btn-text">Full Screen</span>
               </button>
             </div>
           </div>
@@ -511,8 +512,8 @@ export default function CodeEditor() {
       </div>
 
       {showDownloadModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ backgroundColor: "var(--panel-bg)", padding: "24px", borderRadius: "12px", border: "1px solid var(--border-color)", color: "var(--text-color)", minWidth: "320px", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+        <div className="modal-overlay">
+          <div className="modal-content small">
             <h3 style={{ margin: "0 0 20px 0", fontSize: "1.2rem" }}>Download Options</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
               <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "1rem" }}>
@@ -539,8 +540,8 @@ export default function CodeEditor() {
       {showProfileModal && (() => {
         const user = getAuthUser();
         return (
-          <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ backgroundColor: "var(--panel-bg)", padding: "24px", borderRadius: "12px", border: "1px solid var(--border-color)", color: "var(--text-color)", minWidth: "350px", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+          <div className="modal-overlay">
+            <div className="modal-content small">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h3 style={{ margin: 0, fontSize: "1.5rem" }}>My Profile</h3>
                 <button onClick={() => setShowProfileModal(false)} style={{ background: "none", border: "none", color: "var(--text-color)", cursor: "pointer", fontSize: "2rem", lineHeight: "1" }}>&times;</button>
@@ -584,8 +585,8 @@ export default function CodeEditor() {
       })()}
 
       {showSpacesModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ backgroundColor: "var(--panel-bg)", padding: "24px", borderRadius: "12px", border: "1px solid var(--border-color)", color: "var(--text-color)", minWidth: "450px", width: "90%", maxWidth: "600px", maxHeight: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h3 style={{ margin: 0, fontSize: "1.5rem" }}>Your Spaces</h3>
               <button onClick={() => setShowSpacesModal(false)} style={{ background: "none", border: "none", color: "var(--text-color)", cursor: "pointer", fontSize: "2rem", lineHeight: "1" }}>&times;</button>

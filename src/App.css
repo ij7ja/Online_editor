@@ -251,16 +251,19 @@ body {
 @media (max-width: 768px) {
   .main {
     flex-direction: column;
+    overflow-y: auto;
   }
 
   .editor-pane {
     border-right: none;
-    border-bottom: 1px solid #333;
-    height: 50vh;
+    border-bottom: 1px solid var(--border-color);
+    flex: none;
+    height: 60vh;
   }
 
   .output-pane {
-    height: 50vh;
+    flex: none;
+    height: 60vh;
   }
 
   .tabs {
@@ -860,4 +863,162 @@ body {
 
 .toggle-switch input:checked + .toggle-slider:before {
   transform: translateX(16px);
+}
+
+/* --- MOBILE RESPONSIVENESS UPDATES --- */
+
+/* Modal Styles for consistent resizing */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-content {
+  background-color: var(--panel-bg);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content.small {
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  /* Navigation Bar Adjustments */
+  .home-navbar {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+  }
+  
+  .header {
+    padding: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  /* Hide text in header buttons, show only icons if any */
+  .btn-text {
+    display: none;
+  }
+
+  .theme-toggle, .logout-button, .fullscreen-btn {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Code Editor Tabs */
+  .tabs {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px !important;
+  }
+  
+  .tab-buttons {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .run-controls {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  .get-started-btn {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-section, .features-section {
+    padding: 40px 16px;
+  }
+
+  .modal-content {
+    padding: 16px;
+  }
+  
+  .mock-body {
+    font-size: 0.9rem;
+    padding: 16px;
+  }
+
+  .auth-section {
+    padding: 20px 16px;
+  }
+
+  .heading {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .remember-forgot {
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .home-navbar {
+    padding: 12px 16px;
+  }
 }
