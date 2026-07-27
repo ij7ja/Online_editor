@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-d
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
 import Editor from "./pages/CodeEditor";
 import { getAuthToken } from "./auth";
 import './App.css';
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/editor"
           element={

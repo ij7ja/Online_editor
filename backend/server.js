@@ -163,6 +163,32 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+app.post("/api/reset-password", async (req, res) => {
+  try {
+    const { username: rawUsername, newPassword } = req.body;
+    const username = normalizeUsername(rawUsername);
+    const pass = String(newPassword || "");
+
+    if (pass.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const { passwordHash, salt } = hashPassword(pass);
+    user.password_hash = passwordHash;
+    user.salt = salt;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Something went wrong." });
+  }
+});
+
 app.get("/api/me", async (req, res) => {
   try {
     const token = getBearerToken(req);
