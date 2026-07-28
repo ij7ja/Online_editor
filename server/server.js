@@ -73,7 +73,7 @@ async function createSession(userId) {
   await Session.create({
     token,
     userId,
-    expiresAt
+    expiresAt 
   });
 
   return token;

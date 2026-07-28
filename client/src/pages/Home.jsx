@@ -32,7 +32,7 @@ const Home = () => {
             </button>
           </div>
         </div>
-        
+
         <div className="hero-visual fade-in-up delay-3">
           <div className="glass-editor-mock">
             <div className="mock-header">
@@ -75,6 +75,36 @@ const Home = () => {
             <h3>Zero Setup</h3>
             <p>Start coding immediately in your browser. No installation or configuration required. Just pure development.</p>
           </div>
+          <div className="feature-card glass-panel">
+            <div className="feature-icon">💻</div>
+            <h3>VS Code Experience</h3>
+            <p>Powered by Monaco Editor, enjoy advanced syntax highlighting, intelligent autocompletion, and familiar tools.</p>
+          </div>
+          <div className="feature-card glass-panel">
+            <div className="feature-icon">☁️</div>
+            <h3>Cloud Workspaces</h3>
+            <p>Save your code projects securely in the cloud. Access your HTML, CSS, and JS from any device, anytime.</p>
+          </div>
+          <div className="feature-card glass-panel">
+            <div className="feature-icon">📥</div>
+            <h3>Export to Zip</h3>
+            <p>Done coding? Download your entire project as a clean, structured .zip archive with a single click.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-banner fade-in-up delay-2">
+        <div className="cta-banner-content">
+          <p className="cta-text">Already signed up? Click here</p>
+          <button className="cta-login-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            Login
+            <span className="arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+              </svg>
+            </span>
+          </button>
         </div>
       </section>
 
@@ -84,10 +114,23 @@ const Home = () => {
             <div className="nav-logo"><span className="highlight">&lt;/&gt;</span> CodeMaster</div>
             <p>Your ultimate cloud development environment.</p>
           </div>
-          <div className="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Contact Us</a>
+          <div className="footer-right">
+            <div className="footer-links">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">Contact Us</a>
+            </div>
+            <div className="social-icons">
+              <a href="https://github.com/ij7ja/Online_editor" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              </a>
+              <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+              </a>
+              <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>
+              </a>
+            </div>
           </div>
         </div>
         <div className="footer-bottom">
