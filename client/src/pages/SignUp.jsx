@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveAuth } from "../auth";
 import "../App.css";
@@ -7,6 +7,11 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 
 const SignUp = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const theme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+  }, []);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);

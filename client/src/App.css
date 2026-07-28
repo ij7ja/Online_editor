@@ -1136,3 +1136,89 @@ body {
     align-items: center;
   }
 }
+
+/* Light Mode Overrides for Home Page */
+:root[data-theme="light"] .home-container {
+  background: radial-gradient(circle at top left, rgba(20, 184, 166, 0.1), transparent 40%),
+              linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .hero-description {
+  color: #475569;
+}
+
+:root[data-theme="light"] .nav-links a {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .nav-links a:hover {
+  color: #14b8a6;
+}
+
+:root[data-theme="light"] .home-navbar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .glass-editor-mock {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 40px rgba(20, 184, 166, 0.1);
+}
+
+:root[data-theme="light"] .mock-header {
+  background: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .mock-body {
+  color: #334155;
+}
+
+:root[data-theme="light"] .home-footer {
+  background: rgba(255, 255, 255, 0.4);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .footer-brand p,
+:root[data-theme="light"] .footer-links a,
+:root[data-theme="light"] .social-icons a,
+:root[data-theme="light"] .footer-bottom {
+  color: #475569;
+}
+
+:root[data-theme="light"] .social-icons a:hover,
+:root[data-theme="light"] .footer-links a:hover {
+  color: #14b8a6;
+}
+
+/* Light Mode Overrides for Auth Pages */
+:root[data-theme="light"] .glass-form {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 40px rgba(20, 184, 166, 0.1);
+}
+
+:root[data-theme="light"] .heading {
+  color: #111827;
+}
+
+:root[data-theme="light"] .input-box input {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+:root[data-theme="light"] .input-box input::placeholder {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .input-box input:focus {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: #14b8a6;
+}
+
+:root[data-theme="light"] .remember-forgot label,
+:root[data-theme="light"] .register-link {
+  color: #475569;
+}
