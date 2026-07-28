@@ -370,9 +370,9 @@ export default function CodeEditor() {
     <div className="container">
       <nav className="header">
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <h1 className="nav-logo" style={{ margin: 0 }}>
+          <div className="nav-logo" style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
             <span className="highlight">&lt;/&gt;</span> CodeMaster
-          </h1>
+          </div>
           {currentSpace && (
             <>
               <span style={{ color: "var(--border-color)", fontSize: "1.2rem" }}>|</span>

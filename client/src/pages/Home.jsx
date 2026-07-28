@@ -17,7 +17,14 @@ const Home = () => {
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
   return (
-    <div className="home-container">
+    <div className="home-container" style={{ position: "relative" }}>
+      {/* Background Animation Elements */}
+      <div className="bg-animation">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+      </div>
+
       <nav className="home-navbar fade-in">
         <div className="nav-logo">
           <span className="highlight">&lt;/&gt;</span> CodeMaster
