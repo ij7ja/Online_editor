@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { saveAuth } from "../auth";
 import "../App.css";
 
-const Login = () => {
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+const SignUp = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +19,7 @@ const Login = () => {
     setMessage("");
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch(`${API_URL}/api/register`, {
         body: JSON.stringify({ password, username }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
@@ -31,7 +33,7 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed.");
+        throw new Error(data.message || "Registration failed.");
       }
 
       saveAuth({ remember, token: data.token, user: { ...data.user, password } });
@@ -50,13 +52,13 @@ const Login = () => {
           <span className="highlight">&lt;/&gt;</span> CodeMaster
         </div>
         <div className="nav-links">
-          <button className="nav-button" onClick={() => navigate("/signup")}>Sign Up</button>
+          <button className="nav-button" onClick={() => navigate("/login")}>Login</button>
         </div>
       </nav>
 
       <main className="auth-section">
         <form className="glass-form fade-in-up" onSubmit={handleSubmit}>
-          <h1 className="heading">Welcome Back</h1>
+          <h1 className="heading">Create Account</h1>
           
           <div className="input-box">
             <input
@@ -71,7 +73,7 @@ const Login = () => {
 
           <div className="input-box">
             <input
-              autoComplete="current-password"
+              autoComplete="new-password"
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
@@ -88,22 +90,19 @@ const Login = () => {
                 type="checkbox"
               /> Remember me
             </label>
-            <button className="link-button" onClick={() => navigate("/forgot-password")} type="button">
-              Forgot password?
-            </button>
           </div>
 
           {message && <p className="auth-message">{message}</p>}
 
           <button className="get-started-btn" disabled={isLoading} type="submit" style={{ width: '100%', justifyContent: 'center' }}>
-            {isLoading ? "Please wait..." : "Login"}
+            {isLoading ? "Please wait..." : "Sign Up"}
           </button>
 
           <div className="register-link">
             <p>
-              Don't have an account?
-              <button className="link-button" onClick={() => navigate("/signup")} type="button">
-                Sign Up
+              Already have an account?
+              <button className="link-button" onClick={() => navigate("/login")} type="button">
+                Login
               </button>
             </p>
           </div>
@@ -113,4 +112,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;

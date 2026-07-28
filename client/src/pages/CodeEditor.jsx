@@ -6,6 +6,8 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import "../App.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 const DEFAULT_HTML = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -77,7 +79,7 @@ export default function CodeEditor() {
     try {
       const token = getAuthToken();
       if (!token) return;
-      const res = await fetch("http://localhost:3001/api/codespaces", {
+      const res = await fetch(`${API_URL}/api/codespaces`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -102,7 +104,7 @@ export default function CodeEditor() {
       try {
         const token = getAuthToken();
         if (!token) return;
-        await fetch(`http://localhost:3001/api/codespaces/${currentCodeSpaceId}`, {
+        await fetch(`${API_URL}/api/codespaces/${currentCodeSpaceId}`, {
           method: "PUT",
           headers: { 
             "Content-Type": "application/json",
@@ -130,7 +132,7 @@ export default function CodeEditor() {
       // Force save current project immediately before switching
       if (currentCodeSpaceId) {
         setIsSaving(true);
-        await fetch(`http://localhost:3001/api/codespaces/${currentCodeSpaceId}`, {
+        await fetch(`${API_URL}/api/codespaces/${currentCodeSpaceId}`, {
           method: "PUT",
           headers: { 
             "Content-Type": "application/json",
@@ -141,7 +143,7 @@ export default function CodeEditor() {
         fetchCodeSpaces();
       }
 
-      const res = await fetch("http://localhost:3001/api/codespaces", {
+      const res = await fetch(`${API_URL}/api/codespaces`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -181,7 +183,7 @@ export default function CodeEditor() {
     try {
       const token = getAuthToken();
       if (!token) return;
-      const res = await fetch(`http://localhost:3001/api/codespaces/${id}`, {
+      const res = await fetch(`${API_URL}/api/codespaces/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -205,7 +207,7 @@ export default function CodeEditor() {
     try {
       const token = getAuthToken();
       if (!token) return;
-      const res = await fetch(`http://localhost:3001/api/codespaces/${id}`, {
+      const res = await fetch(`${API_URL}/api/codespaces/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -229,7 +231,7 @@ export default function CodeEditor() {
         const token = getAuthToken();
         if (token) {
           setIsSaving(true);
-          await fetch(`http://localhost:3001/api/codespaces/${currentCodeSpaceId}`, {
+          await fetch(`${API_URL}/api/codespaces/${currentCodeSpaceId}`, {
             method: "PUT",
             headers: { 
               "Content-Type": "application/json",

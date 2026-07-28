@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -29,7 +31,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const response = await fetch("/api/reset-password", {
+      const response = await fetch(`${API_URL}/api/reset-password`, {
         body: JSON.stringify({ username, newPassword }),
         headers: { "Content-Type": "application/json" },
         method: "POST",

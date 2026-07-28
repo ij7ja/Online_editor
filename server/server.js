@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const port = Number(process.env.API_PORT || 3001);
+const port = Number(process.env.PORT || process.env.API_PORT || 3001);
 const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/online_code_editor";
 
 // 1. Connect to MongoDB
