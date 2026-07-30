@@ -259,11 +259,17 @@ body {
     border-bottom: 1px solid var(--border-color);
     flex: none;
     height: 60vh;
+    width: 100% !important;
+  }
+
+  .resizer {
+    display: none;
   }
 
   .output-pane {
     flex: none;
     height: 60vh;
+    width: 100% !important;
   }
 
   .tabs {
@@ -428,6 +434,19 @@ body {
 
 
 
+.resizer {
+  width: 6px;
+  background: var(--border-color);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  z-index: 10;
+}
+
+.resizer:hover, .resizer:active {
+  background: var(--accent-color);
+}
+
 .output-pane {
   flex: 1;
   min-width: 0;   /* IMPORTANT */
@@ -439,20 +458,31 @@ body {
 }
 
 
-.output-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px;
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    min-width: 250px;
+    overflow: hidden;
+}
+
+.output-header h2 {
+    margin-bottom: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 
 
-.fullscreen-btn{
-    padding:8px 14px;
-    cursor:pointer;
-    border:none;
-    border-radius:8px;
+.fullscreen-btn {
+    padding: 8px 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .output-frame{

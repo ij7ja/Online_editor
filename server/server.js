@@ -41,6 +41,11 @@ const codeSpaceSchema = new mongoose.Schema({
   html: { type: String, default: "" },
   css: { type: String, default: "" },
   js: { type: String, default: "" },
+  fileNames: {
+    html: { type: String, default: "index.html" },
+    css: { type: String, default: "style.css" },
+    js: { type: String, default: "script.js" }
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
@@ -265,13 +270,14 @@ app.get("/api/codespaces", authenticate, async (req, res) => {
 
 app.post("/api/codespaces", authenticate, async (req, res) => {
   try {
-    const { title, html, css, js } = req.body;
+    const { title, html, css, js, fileNames } = req.body;
     const newSpace = await CodeSpace.create({
       userId: req.user._id,
       title: title || `Project - ${new Date().toLocaleDateString()}`,
       html: html || "",
       css: css || "",
       js: js || "",
+      fileNames: fileNames || { html: "index.html", css: "style.css", js: "script.js" },
       updatedAt: new Date()
     });
     res.status(201).json(newSpace);
@@ -282,17 +288,18 @@ app.post("/api/codespaces", authenticate, async (req, res) => {
 
 app.put("/api/codespaces/:id", authenticate, async (req, res) => {
   try {
-    const { html, css, js, title } = req.body;
+    const { html, css, js, title, fileNames } = req.body;
     const updateData = { updatedAt: new Date() };
     if (html !== undefined) updateData.html = html;
     if (css !== undefined) updateData.css = css;
     if (js !== undefined) updateData.js = js;
     if (title !== undefined) updateData.title = title;
+    if (fileNames !== undefined) updateData.fileNames = fileNames;
 
     const updatedSpace = await CodeSpace.findOneAndUpdate(
       { _id: req.params.id, userId: req.user._id },
       updateData,
-      { new: true }
+      { returnDocument: 'after' }
     );
     
     if (!updatedSpace) return res.status(404).json({ message: "Not found" });

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { clearAuth, getAuthToken, getAuthUser } from "../auth";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { emmetHTML, emmetCSS, emmetJSX } from "emmet-monaco-es";
 import "../App.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -14,9 +15,11 @@ const DEFAULT_HTML = `<!DOCTYPE html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <h1>CodeMaster</h1>
+    <script src="script.js"></script>
   </body>
 </html>`;
 
@@ -42,6 +45,13 @@ export default function CodeEditor() {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [downloadOptions, setDownloadOptions] = useState({ html: true, css: true, js: true });
 
+  const [fileNames, setFileNames] = useState({ html: "index.html", css: "style.css", js: "script.js" });
+  const [editingFile, setEditingFile] = useState(null);
+  const [tempFileName, setTempFileName] = useState("");
+
+  const [editorWidth, setEditorWidth] = useState(50);
+  const isResizing = useRef(false);
+
   const [codeSpaces, setCodeSpaces] = useState([]);
   const [currentCodeSpaceId, setCurrentCodeSpaceId] = useState(null);
   const [showSpacesModal, setShowSpacesModal] = useState(false);
@@ -50,19 +60,30 @@ export default function CodeEditor() {
   const [editingSpaceId, setEditingSpaceId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("theme") || "dark";
   });
 
   const updateSrcDoc = useCallback(() => {
-    setSrcDoc(
-      html
-        .replace("</head>", `<style>${css}</style></head>`)
-        .replace("</body>", `<script>${js}</script></body>`)
-    );
-  }, [html, css, js]);
+    let finalHtml = html;
+    
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const escapedCssName = escapeRegExp(fileNames.css);
+    const cssRegex = new RegExp(`<link[^>]*href=['"]${escapedCssName}['"][^>]*>`, 'gi');
+    if (cssRegex.test(finalHtml)) {
+      finalHtml = finalHtml.replace(cssRegex, `<style>${css}</style>`);
+    }
+    
+    const escapedJsName = escapeRegExp(fileNames.js);
+    const jsRegex = new RegExp(`<script[^>]*src=['"]${escapedJsName}['"][^>]*><\\/script>`, 'gi');
+    if (jsRegex.test(finalHtml)) {
+      finalHtml = finalHtml.replace(jsRegex, `<script>${js}</script>`);
+    }
+    
+    setSrcDoc(finalHtml);
+  }, [html, css, js, fileNames]);
 
   useEffect(() => {
     if (autoRun) {
@@ -74,6 +95,37 @@ export default function CodeEditor() {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  const startResizing = useCallback((e) => {
+    isResizing.current = true;
+    document.body.style.userSelect = "none";
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    isResizing.current = false;
+    document.body.style.userSelect = "";
+  }, []);
+
+  const resize = useCallback((e) => {
+    if (isResizing.current) {
+      let newWidth = (e.clientX / window.innerWidth) * 100;
+      
+      // Enforce bounds to prevent panes from becoming too small
+      if (newWidth < 20) newWidth = 20;
+      if (newWidth > 75) newWidth = 75;
+      
+      setEditorWidth(newWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stopResizing);
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [resize, stopResizing]);
 
   const fetchCodeSpaces = useCallback(async () => {
     try {
@@ -110,7 +162,7 @@ export default function CodeEditor() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ html, css, js })
+          body: JSON.stringify({ html, css, js, fileNames })
         });
         // Refresh the list to update timestamps
         fetchCodeSpaces();
@@ -122,7 +174,7 @@ export default function CodeEditor() {
     }, 2000); // 2 second debounce
 
     return () => clearTimeout(timer);
-  }, [html, css, js, currentCodeSpaceId, fetchCodeSpaces]);
+  }, [html, css, js, fileNames, currentCodeSpaceId, fetchCodeSpaces]);
 
   const handleCreateNewSpace = async () => {
     try {
@@ -138,7 +190,7 @@ export default function CodeEditor() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}` 
           },
-          body: JSON.stringify({ html, css, js })
+          body: JSON.stringify({ html, css, js, fileNames })
         });
         fetchCodeSpaces();
       }
@@ -153,7 +205,8 @@ export default function CodeEditor() {
           title: newProjectTitle.trim() || undefined,
           html: DEFAULT_HTML,
           css: DEFAULT_CSS,
-          js: DEFAULT_JS
+          js: DEFAULT_JS,
+          fileNames: { html: "index.html", css: "style.css", js: "script.js" }
         })
       });
       if (res.ok) {
@@ -163,11 +216,21 @@ export default function CodeEditor() {
         setHtml(newSpace.html);
         setCss(newSpace.css);
         setJs(newSpace.js);
-        setSrcDoc(
-          newSpace.html
-            .replace("</head>", `<style>${newSpace.css}</style></head>`)
-            .replace("</body>", `<script>${newSpace.js}</script></body>`)
-        );
+        const newFileNames = newSpace.fileNames || { html: "index.html", css: "style.css", js: "script.js" };
+        setFileNames(newFileNames);
+        
+        let finalHtml = newSpace.html;
+        const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        
+        const escapedCssName = escapeRegExp(newFileNames.css);
+        const cssRegex = new RegExp(`<link[^>]*href=['"]${escapedCssName}['"][^>]*>`, 'gi');
+        if (cssRegex.test(finalHtml)) finalHtml = finalHtml.replace(cssRegex, `<style>${newSpace.css}</style>`);
+        
+        const escapedJsName = escapeRegExp(newFileNames.js);
+        const jsRegex = new RegExp(`<script[^>]*src=['"]${escapedJsName}['"][^>]*><\\/script>`, 'gi');
+        if (jsRegex.test(finalHtml)) finalHtml = finalHtml.replace(jsRegex, `<script>${newSpace.js}</script>`);
+        
+        setSrcDoc(finalHtml);
         setNewProjectTitle("");
         setShowSpacesModal(false);
       }
@@ -237,7 +300,7 @@ export default function CodeEditor() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}` 
             },
-            body: JSON.stringify({ html, css, js })
+            body: JSON.stringify({ html, css, js, fileNames })
           });
           setIsSaving(false);
         }
@@ -250,11 +313,21 @@ export default function CodeEditor() {
     setHtml(space.html);
     setCss(space.css);
     setJs(space.js);
-    setSrcDoc(
-      space.html
-        .replace("</head>", `<style>${space.css}</style></head>`)
-        .replace("</body>", `<script>${space.js}</script></body>`)
-    );
+    const newFileNames = space.fileNames || { html: "index.html", css: "style.css", js: "script.js" };
+    setFileNames(newFileNames);
+    
+    let finalHtml = space.html;
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    const escapedCssName = escapeRegExp(newFileNames.css);
+    const cssRegex = new RegExp(`<link[^>]*href=['"]${escapedCssName}['"][^>]*>`, 'gi');
+    if (cssRegex.test(finalHtml)) finalHtml = finalHtml.replace(cssRegex, `<style>${space.css}</style>`);
+    
+    const escapedJsName = escapeRegExp(newFileNames.js);
+    const jsRegex = new RegExp(`<script[^>]*src=['"]${escapedJsName}['"][^>]*><\\/script>`, 'gi');
+    if (jsRegex.test(finalHtml)) finalHtml = finalHtml.replace(jsRegex, `<script>${space.js}</script>`);
+    
+    setSrcDoc(finalHtml);
     setShowSpacesModal(false);
   };
 
@@ -305,16 +378,16 @@ export default function CodeEditor() {
     const zip = new JSZip();
 
     let finalHtml = html;
-    if (!finalHtml.includes("style.css") && downloadOptions.css) {
-      finalHtml = finalHtml.replace("</head>", `  <link rel="stylesheet" href="style.css" />\n  </head>`);
+    if (!finalHtml.includes(fileNames.css) && downloadOptions.css) {
+      finalHtml = finalHtml.replace("</head>", `  <link rel="stylesheet" href="${fileNames.css}" />\n  </head>`);
     }
-    if (!finalHtml.includes("script.js") && downloadOptions.js) {
-      finalHtml = finalHtml.replace("</body>", `  <script src="script.js"></script>\n  </body>`);
+    if (!finalHtml.includes(fileNames.js) && downloadOptions.js) {
+      finalHtml = finalHtml.replace("</body>", `  <script src="${fileNames.js}"></script>\n  </body>`);
     }
 
-    if (downloadOptions.html) zip.file("index.html", finalHtml);
-    if (downloadOptions.css) zip.file("style.css", css);
-    if (downloadOptions.js) zip.file("script.js", js);
+    if (downloadOptions.html) zip.file(fileNames.html, finalHtml);
+    if (downloadOptions.css) zip.file(fileNames.css, css);
+    if (downloadOptions.js) zip.file(fileNames.js, js);
 
     const content = await zip.generateAsync({ type: "blob" });
     saveAs(content, "code_master_project.zip");
@@ -323,6 +396,16 @@ export default function CodeEditor() {
   };
 
   const editorTheme = theme === "dark" ? "vs-dark" : "light";
+
+  const handleEditorDidMount = (editor, monaco) => {
+    try {
+      emmetHTML(monaco);
+      emmetCSS(monaco);
+      emmetJSX(monaco);
+    } catch (err) {
+      console.warn("Emmet initialization failed:", err);
+    }
+  };
 
   const renderEditor = () => {
     switch (activeTab) {
@@ -334,6 +417,8 @@ export default function CodeEditor() {
             theme={editorTheme}
             value={html}
             onChange={(value) => setHtml(value || "")}
+            onMount={handleEditorDidMount}
+            options={{ tabSize: 2 }}
           />
         );
 
@@ -345,6 +430,8 @@ export default function CodeEditor() {
             theme={editorTheme}
             value={css}
             onChange={(value) => setCss(value || "")}
+            onMount={handleEditorDidMount}
+            options={{ tabSize: 2 }}
           />
         );
 
@@ -356,6 +443,8 @@ export default function CodeEditor() {
             theme={editorTheme}
             value={js}
             onChange={(value) => setJs(value || "")}
+            onMount={handleEditorDidMount}
+            options={{ tabSize: 2 }}
           />
         );
 
@@ -404,7 +493,7 @@ export default function CodeEditor() {
 
           <button className="theme-toggle" onClick={() => setShowProfileModal(true)} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span className="btn-text">Profile</span>
+            <span className="btn-text"></span>
           </button>
 
           <button className="logout-button" onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -415,28 +504,73 @@ export default function CodeEditor() {
       </nav>
 
       <div className="main">
-        <div className="editor-pane">
+        <div className="editor-pane" style={{ width: `${editorWidth}%`, flex: 'none' }}>
           <div className="tabs" style={{ display: "flex", alignItems: "center", paddingRight: "16px" }}>
             <div className="tab-buttons" style={{ display: "flex", gap: "10px" }}>
               <button
                 className={activeTab === "html" ? "tab active-tab" : "tab"}
                 onClick={() => setActiveTab("html")}
+                onDoubleClick={() => { setEditingFile("html"); setTempFileName(fileNames.html); }}
               >
-                HTML
+                {editingFile === "html" ? (
+                  <input
+                    autoFocus
+                    value={tempFileName}
+                    onChange={(e) => setTempFileName(e.target.value)}
+                    onBlur={() => { setFileNames({...fileNames, html: tempFileName || "index.html"}); setEditingFile(null); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setFileNames({...fileNames, html: tempFileName || "index.html"});
+                        setEditingFile(null);
+                      }
+                    }}
+                    style={{ width: "80px", color: "var(--text-color)", background: "transparent", border: "none", outline: "none", textAlign: "center", font: "inherit", fontWeight: "600" }}
+                  />
+                ) : fileNames.html}
               </button>
 
               <button
                 className={activeTab === "css" ? "tab active-tab" : "tab"}
                 onClick={() => setActiveTab("css")}
+                onDoubleClick={() => { setEditingFile("css"); setTempFileName(fileNames.css); }}
               >
-                CSS
+                {editingFile === "css" ? (
+                  <input
+                    autoFocus
+                    value={tempFileName}
+                    onChange={(e) => setTempFileName(e.target.value)}
+                    onBlur={() => { setFileNames({...fileNames, css: tempFileName || "style.css"}); setEditingFile(null); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setFileNames({...fileNames, css: tempFileName || "style.css"});
+                        setEditingFile(null);
+                      }
+                    }}
+                    style={{ width: "80px", color: "var(--text-color)", background: "transparent", border: "none", outline: "none", textAlign: "center", font: "inherit", fontWeight: "600" }}
+                  />
+                ) : fileNames.css}
               </button>
 
               <button
                 className={activeTab === "js" ? "tab active-tab" : "tab"}
                 onClick={() => setActiveTab("js")}
+                onDoubleClick={() => { setEditingFile("js"); setTempFileName(fileNames.js); }}
               >
-                JavaScript
+                {editingFile === "js" ? (
+                  <input
+                    autoFocus
+                    value={tempFileName}
+                    onChange={(e) => setTempFileName(e.target.value)}
+                    onBlur={() => { setFileNames({...fileNames, js: tempFileName || "script.js"}); setEditingFile(null); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setFileNames({...fileNames, js: tempFileName || "script.js"});
+                        setEditingFile(null);
+                      }
+                    }}
+                    style={{ width: "80px", color: "var(--text-color)", background: "transparent", border: "none", outline: "none", textAlign: "center", font: "inherit", fontWeight: "600" }}
+                  />
+                ) : fileNames.js}
               </button>
             </div>
             
@@ -478,7 +612,9 @@ export default function CodeEditor() {
           <div className="editor-box">{renderEditor()}</div>
         </div>
 
-        <div className="output-pane" ref={outputRef}>
+        <div className="resizer" onMouseDown={startResizing} title="Drag to resize"></div>
+
+        <div className="output-pane" ref={outputRef} style={{ width: `calc(${100 - editorWidth}% - 6px)`, flex: 'none' }}>
           <div className="output-header">
             <h2>Output</h2>
 
@@ -520,15 +656,15 @@ export default function CodeEditor() {
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
               <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "1rem" }}>
                 <input type="checkbox" checked={downloadOptions.html} onChange={(e) => setDownloadOptions({...downloadOptions, html: e.target.checked})} style={{ accentColor: "var(--accent-color)", width: "16px", height: "16px" }} /> 
-                HTML File
+                {fileNames.html}
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "1rem" }}>
                 <input type="checkbox" checked={downloadOptions.css} onChange={(e) => setDownloadOptions({...downloadOptions, css: e.target.checked})} style={{ accentColor: "var(--accent-color)", width: "16px", height: "16px" }} /> 
-                CSS File
+                {fileNames.css}
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "1rem" }}>
                 <input type="checkbox" checked={downloadOptions.js} onChange={(e) => setDownloadOptions({...downloadOptions, js: e.target.checked})} style={{ accentColor: "var(--accent-color)", width: "16px", height: "16px" }} /> 
-                JavaScript File
+                {fileNames.js}
               </label>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
@@ -558,28 +694,17 @@ export default function CodeEditor() {
                   <label style={{ display: "block", fontSize: "14px", color: "#888", marginBottom: "6px", fontWeight: "500" }}>Password</label>
                   <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                     <input 
-                      type={showPassword ? "text" : "password"} 
+                      type="password" 
                       value={user?.password || "********"} 
                       readOnly 
-                      style={{ width: "100%", boxSizing: "border-box", padding: "10px 40px 10px 10px", borderRadius: "6px", border: "1px solid var(--border-color)", backgroundColor: "rgba(255,255,255,0.05)", color: "var(--text-color)", cursor: "not-allowed", fontSize: "16px" }} 
+                      style={{ width: "100%", boxSizing: "border-box", padding: "10px", borderRadius: "6px", border: "1px solid var(--border-color)", backgroundColor: "rgba(255,255,255,0.05)", color: "var(--text-color)", cursor: "not-allowed", fontSize: "16px" }} 
                     />
-                    <button 
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{ position: "absolute", right: "10px", background: "none", border: "none", color: "#888", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                      title={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                      )}
-                    </button>
                   </div>
                 </div>
               </div>
               
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={() => {setShowProfileModal(false); setShowPassword(false);}} style={{ padding: "8px 16px", backgroundColor: "var(--accent-color)", border: "none", color: "#fff", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}>Close</button>
+                <button onClick={() => {setShowProfileModal(false);}} style={{ padding: "8px 16px", backgroundColor: "var(--accent-color)", border: "none", color: "#fff", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}>Close</button>
               </div>
             </div>
           </div>
