@@ -145,6 +145,7 @@ const Home = () => {
               <a href="#">Privacy Policy</a>
               <a href="#">Terms of Service</a>
               <a href="#">Contact Us</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate('/hotkeys'); }}>HotKeys</a>
             </div>
             <div className="social-icons">
               <a href="https://github.com/ij7ja/Online_editor" target="_blank" rel="noopener noreferrer" aria-label="GitHub">

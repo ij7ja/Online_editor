@@ -32,6 +32,11 @@ const DEFAULT_CSS = `body{
 
 const DEFAULT_JS = `console.log('Javascript is running');`;
 
+let emmetRegistered = false;
+const EDITOR_OPTIONS = { 
+  tabSize: 2
+};
+
 export default function CodeEditor() {
   const outputRef = useRef(null);
   const navigate = useNavigate();
@@ -331,9 +336,9 @@ export default function CodeEditor() {
     setShowSpacesModal(false);
   };
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
-  };
+  }, []);
 
   const handleLogout = () => {
     clearAuth();
@@ -360,6 +365,12 @@ export default function CodeEditor() {
         toggleFullscreen();
       }
       
+      // Allow Alt+T for Theme toggle
+      if (e.altKey && e.key.toLowerCase() === "t") {
+        e.preventDefault();
+        toggleTheme();
+      }
+      
       // Allow Ctrl+Enter for Run
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
@@ -368,7 +379,7 @@ export default function CodeEditor() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [updateSrcDoc]);
+  }, [updateSrcDoc, toggleTheme]);
 
   const handleDownloadClick = () => {
     setShowDownloadModal(true);
@@ -397,15 +408,21 @@ export default function CodeEditor() {
 
   const editorTheme = theme === "dark" ? "vs-dark" : "light";
 
-  const handleEditorDidMount = (editor, monaco) => {
+  const handleEditorDidMount = useCallback((editor, monaco) => {
+    if (emmetRegistered) return;
     try {
       emmetHTML(monaco);
       emmetCSS(monaco);
       emmetJSX(monaco);
+      emmetRegistered = true;
     } catch (err) {
       console.warn("Emmet initialization failed:", err);
     }
-  };
+  }, []);
+
+  const handleHtmlChange = useCallback((value) => setHtml(value || ""), []);
+  const handleCssChange = useCallback((value) => setCss(value || ""), []);
+  const handleJsChange = useCallback((value) => setJs(value || ""), []);
 
   const renderEditor = () => {
     switch (activeTab) {
@@ -416,9 +433,9 @@ export default function CodeEditor() {
             language="html"
             theme={editorTheme}
             value={html}
-            onChange={(value) => setHtml(value || "")}
+            onChange={handleHtmlChange}
             onMount={handleEditorDidMount}
-            options={{ tabSize: 2 }}
+            options={EDITOR_OPTIONS}
           />
         );
 
@@ -429,9 +446,9 @@ export default function CodeEditor() {
             language="css"
             theme={editorTheme}
             value={css}
-            onChange={(value) => setCss(value || "")}
+            onChange={handleCssChange}
             onMount={handleEditorDidMount}
-            options={{ tabSize: 2 }}
+            options={EDITOR_OPTIONS}
           />
         );
 
@@ -442,9 +459,9 @@ export default function CodeEditor() {
             language="javascript"
             theme={editorTheme}
             value={js}
-            onChange={(value) => setJs(value || "")}
+            onChange={handleJsChange}
             onMount={handleEditorDidMount}
-            options={{ tabSize: 2 }}
+            options={EDITOR_OPTIONS}
           />
         );
 
@@ -476,10 +493,10 @@ export default function CodeEditor() {
           {isSaving && <span style={{ fontSize: "14px", color: "var(--accent-color)", fontWeight: "600" }}>Saving...</span>}
           <button className="theme-toggle" onClick={() => setShowSpacesModal(true)} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span className="btn-text">Create</span>
+            <span className="btn-text">Spaces</span>
           </button>
 
-          <button className="theme-toggle" onClick={toggleTheme} style={{ display: "flex", alignItems: "center", gap: "6px" }} title="Toggle Theme">
+          <button className="theme-toggle" onClick={toggleTheme} style={{ display: "flex", alignItems: "center", gap: "6px" }} title="Shortcut alt + T">
             {theme === "dark" ? (
               <>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
@@ -643,7 +660,7 @@ export default function CodeEditor() {
           <iframe
             srcDoc={srcDoc}
             title="output"
-            sandbox="allow-scripts"
+            sandbox="allow-scripts allow-modals"
             className="output-frame"
           />
         </div>
@@ -732,7 +749,7 @@ export default function CodeEditor() {
               </button>
             </div>
             
-            <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "5px" }}>
+            <div className="modern-scrollbar" style={{ overflowY: "auto", maxHeight: "300px", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "5px" }}>
               {codeSpaces.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px 20px" }}>
                   <p style={{ color: "#888", fontSize: "1.1rem", marginBottom: "10px" }}>You don't have any projects yet.</p>
