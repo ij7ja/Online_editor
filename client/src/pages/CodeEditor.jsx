@@ -56,6 +56,7 @@ export default function CodeEditor() {
 
   const [editorWidth, setEditorWidth] = useState(50);
   const isResizing = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [codeSpaces, setCodeSpaces] = useState([]);
   const [currentCodeSpaceId, setCurrentCodeSpaceId] = useState(null);
@@ -78,13 +79,13 @@ export default function CodeEditor() {
     const escapedCssName = escapeRegExp(fileNames.css);
     const cssRegex = new RegExp(`<link[^>]*href=['"]${escapedCssName}['"][^>]*>`, 'gi');
     if (cssRegex.test(finalHtml)) {
-      finalHtml = finalHtml.replace(cssRegex, `<style>${css}</style>`);
+      finalHtml = finalHtml.replace(cssRegex, () => `<style>\n${css}\n</style>`);
     }
     
     const escapedJsName = escapeRegExp(fileNames.js);
     const jsRegex = new RegExp(`<script[^>]*src=['"]${escapedJsName}['"][^>]*><\\/script>`, 'gi');
     if (jsRegex.test(finalHtml)) {
-      finalHtml = finalHtml.replace(jsRegex, `<script>${js}</script>`);
+      finalHtml = finalHtml.replace(jsRegex, () => `<script>\n${js}\n</script>`);
     }
     
     setSrcDoc(finalHtml);
@@ -103,11 +104,13 @@ export default function CodeEditor() {
 
   const startResizing = useCallback((e) => {
     isResizing.current = true;
+    setIsDragging(true);
     document.body.style.userSelect = "none";
   }, []);
 
   const stopResizing = useCallback(() => {
     isResizing.current = false;
+    setIsDragging(false);
     document.body.style.userSelect = "";
   }, []);
 
@@ -229,11 +232,11 @@ export default function CodeEditor() {
         
         const escapedCssName = escapeRegExp(newFileNames.css);
         const cssRegex = new RegExp(`<link[^>]*href=['"]${escapedCssName}['"][^>]*>`, 'gi');
-        if (cssRegex.test(finalHtml)) finalHtml = finalHtml.replace(cssRegex, `<style>${newSpace.css}</style>`);
+        if (cssRegex.test(finalHtml)) finalHtml = finalHtml.replace(cssRegex, () => `<style>\n${newSpace.css}\n</style>`);
         
         const escapedJsName = escapeRegExp(newFileNames.js);
         const jsRegex = new RegExp(`<script[^>]*src=['"]${escapedJsName}['"][^>]*><\\/script>`, 'gi');
-        if (jsRegex.test(finalHtml)) finalHtml = finalHtml.replace(jsRegex, `<script>${newSpace.js}</script>`);
+        if (jsRegex.test(finalHtml)) finalHtml = finalHtml.replace(jsRegex, () => `<script>\n${newSpace.js}\n</script>`);
         
         setSrcDoc(finalHtml);
         setNewProjectTitle("");
@@ -326,11 +329,11 @@ export default function CodeEditor() {
     
     const escapedCssName = escapeRegExp(newFileNames.css);
     const cssRegex = new RegExp(`<link[^>]*href=['"]${escapedCssName}['"][^>]*>`, 'gi');
-    if (cssRegex.test(finalHtml)) finalHtml = finalHtml.replace(cssRegex, `<style>${space.css}</style>`);
+    if (cssRegex.test(finalHtml)) finalHtml = finalHtml.replace(cssRegex, () => `<style>\n${space.css}\n</style>`);
     
     const escapedJsName = escapeRegExp(newFileNames.js);
     const jsRegex = new RegExp(`<script[^>]*src=['"]${escapedJsName}['"][^>]*><\\/script>`, 'gi');
-    if (jsRegex.test(finalHtml)) finalHtml = finalHtml.replace(jsRegex, `<script>${space.js}</script>`);
+    if (jsRegex.test(finalHtml)) finalHtml = finalHtml.replace(jsRegex, () => `<script>\n${space.js}\n</script>`);
     
     setSrcDoc(finalHtml);
     setShowSpacesModal(false);
@@ -482,9 +485,14 @@ export default function CodeEditor() {
           {currentSpace && (
             <>
               <span style={{ color: "var(--border-color)", fontSize: "1.2rem" }}>|</span>
-              <span style={{ color: "var(--text-color)", fontSize: "0.95rem", fontWeight: "500", backgroundColor: "rgba(255,255,255,0.05)", padding: "4px 10px", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
-                {currentSpace.title}
-              </span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center" }}>
+                <span style={{ color: "var(--text-color)", fontSize: "0.95rem", fontWeight: "500", backgroundColor: "rgba(255,255,255,0.05)", padding: "2px 10px", borderRadius: "12px", border: "1px solid var(--border-color)", lineHeight: "1.2" }}>
+                  {currentSpace.title}
+                </span>
+                <span style={{ fontSize: "0.6rem", color: "#888", marginTop: "2px", marginLeft: "4px", lineHeight: "1" }}>
+                  Refresh the the page to leave the current space 
+                </span>
+              </div>
             </>
           )}
         </div>
@@ -660,8 +668,9 @@ export default function CodeEditor() {
           <iframe
             srcDoc={srcDoc}
             title="output"
-            sandbox="allow-scripts allow-modals"
+            sandbox="allow-scripts allow-modals allow-same-origin allow-popups"
             className="output-frame"
+            style={{ pointerEvents: isDragging ? "none" : "auto" }}
           />
         </div>
       </div>
@@ -739,7 +748,7 @@ export default function CodeEditor() {
             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
               <input 
                 type="text" 
-                placeholder="Project Name (optional)" 
+                placeholder="Space Name (optional)" 
                 value={newProjectTitle} 
                 onChange={(e) => setNewProjectTitle(e.target.value)}
                 style={{ flex: 1, padding: "10px", borderRadius: "6px", border: "1px solid var(--border-color)", backgroundColor: "var(--bg-color)", color: "var(--text-color)" }} 
