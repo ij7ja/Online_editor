@@ -271,9 +271,38 @@ app.get("/api/codespaces", authenticate, async (req, res) => {
 app.post("/api/codespaces", authenticate, async (req, res) => {
   try {
     const { title, html, css, js, fileNames } = req.body;
+    let finalTitle = title;
+    
+    if (!finalTitle) {
+      const baseTitle = `Project - ${new Date().toLocaleDateString()}`;
+      finalTitle = baseTitle;
+      
+      const escapedBaseTitle = baseTitle.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      const existingSpaces = await CodeSpace.find({ 
+        userId: req.user._id, 
+        title: new RegExp(`^${escapedBaseTitle}( \\(\\d+\\))?$`)
+      });
+      
+      if (existingSpaces.length > 0) {
+        let maxCount = 1;
+        for (const space of existingSpaces) {
+          const match = space.title.match(/\((\d+)\)$/);
+          if (match) {
+            const count = parseInt(match[1], 10);
+            if (count >= maxCount) {
+              maxCount = count + 1;
+            }
+          } else {
+            if (maxCount === 1) maxCount = 2;
+          }
+        }
+        finalTitle = `${baseTitle} (${maxCount})`;
+      }
+    }
+
     const newSpace = await CodeSpace.create({
       userId: req.user._id,
-      title: title || `Project - ${new Date().toLocaleDateString()}`,
+      title: finalTitle,
       html: html || "",
       css: css || "",
       js: js || "",
